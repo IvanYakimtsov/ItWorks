@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.RectF;
+import android.os.Parcel;
 import android.util.Log;
 
 /**
@@ -14,7 +15,7 @@ public class NodeDevice implements Device {
     private float x;
     private float y;
     private int resourcePicture;
-    private Context context;
+    private transient Context context;
     private String name;
 
     public NodeDevice(Context context, String name, int bitmap, float x, float y) {
@@ -23,6 +24,14 @@ public class NodeDevice implements Device {
         this.y = y;
         resourcePicture = bitmap;
         this.name = name;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public void setY(float y) {
+        this.y = y;
     }
 
     public NodeDevice(String name) {
@@ -72,10 +81,14 @@ public class NodeDevice implements Device {
         Bitmap device = BitmapFactory.decodeResource(context.getResources(), resourcePicture);
         RectF deviceRect = new RectF(this.x - device.getWidth() / 2, this.y - device.getHeight() / 2,
                 this.x + device.getWidth(), this.y + device.getHeight());
-        Log.d("check", x + " " + y);
-        Log.d("check", this.x + " " + this.y);
+//        Log.d("check", x + " " + y);
+//        Log.d("check", this.x + " " + this.y);
         return deviceRect.contains(x, y);
         //  return true;
     }
 
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
 }

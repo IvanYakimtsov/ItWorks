@@ -1,12 +1,15 @@
 package com.example.ivan.itworked.GameData;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.example.ivan.itworked.Devices.ConnectionDevice;
 import com.example.ivan.itworked.Devices.Device;
 import com.example.ivan.itworked.Devices.NodeDevice;
 import com.example.ivan.itworked.R;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +17,7 @@ import java.util.List;
  * Created by Ivan on 18.11.2017.
  */
 
-public class LevelController {
+public class LevelController implements Serializable{
     private List<Device> deviceOnField;
     private List<Device> useDevices;
 
@@ -40,6 +43,10 @@ public class LevelController {
             case 3: break;
             case 4: break;
         }
+    }
+
+    public void deleteUseDevice(Device device){
+        //TODO:delete device
     }
 
     public void addDevice(Device device){
@@ -73,4 +80,5 @@ public class LevelController {
     public List<Device> getUseDevices(){
         return useDevices;
     }
+
 }

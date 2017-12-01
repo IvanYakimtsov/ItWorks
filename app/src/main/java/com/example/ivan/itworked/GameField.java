@@ -30,13 +30,8 @@ public class GameField extends SurfaceView implements SurfaceHolder.Callback, Vi
     private SurfaceHolder holder;
     private LevelController levelController;
 
-    public final static int NODE_DEVICE = 1;
-    public final static int CONNECTION_DEVICE = -1;
-    public final static int NO_DEVICE = 0;
+    private Device currentDevice;
 
-    private int resource = -1;
-    private String name;
-    private int currentDevice = 0;
     private float curStartX = -1;
     private float curStartY = -1;
 
@@ -67,7 +62,7 @@ public class GameField extends SurfaceView implements SurfaceHolder.Callback, Vi
 
     private void drawAllDevices(Canvas canvas) {
         List<Device> devices = levelController.getDevicesOnField();
-
+       // Log.d("check",levelController.getDevicesOnField().size() + " device on field size");
         Paint paint = new Paint();
         paint.setColor(Color.WHITE);
 
@@ -101,57 +96,47 @@ public class GameField extends SurfaceView implements SurfaceHolder.Callback, Vi
 
     }
 
-    public void setResource(int resource) {
-        this.resource = resource;
+    public void setCurrentDevice(Device currentDevice) {
+        this.currentDevice = currentDevice;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-
-    public void setCurrentDeviceNode(int currentDeviceNode) {
-        this.currentDevice = currentDeviceNode;
-    }
-
-    public void paint(String name, int resource, float x, float y) {
+    public void paint(NodeDevice newDevice) {
         Canvas canvas = holder.lockCanvas();
+
         List<Device> devices = levelController.getDevicesOnField();
-        if (resource != 0) {
-            NodeDevice newNode = new NodeDevice(context, name, resource, x, y);
-            for (Device device : devices)
-                if (device instanceof NodeDevice) {
-                    NodeDevice nodeDevice = (NodeDevice) device;
-                    if (nodeDevice.isIntersect(newNode)) {
-                        drawAllDevices(canvas);
-                        holder.unlockCanvasAndPost(canvas);
-                        return;
-                    }
+        for (Device device : devices)
+            if (device instanceof NodeDevice) {
+                NodeDevice nodeDevice = (NodeDevice) device;
+                if (nodeDevice.isIntersect(newDevice)) {
+                    drawAllDevices(canvas);
+                    holder.unlockCanvasAndPost(canvas);
+                    return;
                 }
-            levelController.addDevice(newNode);
-        }
+            }
+        levelController.addDevice(newDevice);
+        levelController.deleteUseDevice(newDevice);
         drawAllDevices(canvas);
+        currentDevice = null;
         holder.unlockCanvasAndPost(canvas);
     }
 
 
     public void paint(float firstX, float firstY, float secondX, float secondY) {
-       // Log.d("check","paint connection device");
         Canvas canvas = holder.lockCanvas();
         List<NodeDevice> devices = levelController.getNodeDeviceOnField();
         for (NodeDevice firstDevice : devices)
-            if (firstDevice.isContain(firstX, firstY)){
-              //  Log.d("check", firstDevice.getName());
+            if (firstDevice.isContain(firstX, firstY)) {
                 for (NodeDevice secondDevice : devices)
                     if (secondDevice.isContain(secondX, secondY)) {
-                        ConnectionDevice connectionDevice = new ConnectionDevice("cord", resource);
-                        connectionDevice.setFirstDevice(firstDevice);
-                        connectionDevice.setSecondDevice(secondDevice);
-                        levelController.addDevice(connectionDevice);
-                      //  Log.d("check", firstDevice.getName() + " " + secondDevice.getName());
+                        ((ConnectionDevice)currentDevice).setFirstDevice(firstDevice);
+                        ((ConnectionDevice)currentDevice).setSecondDevice(secondDevice);
+                        levelController.addDevice(currentDevice);
+                        levelController.deleteUseDevice(currentDevice);
+                        //  Log.d("check", firstDevice.getName() + " " + secondDevice.getName());
                     }
             }
 
+        currentDevice = null;
         drawAllDevices(canvas);
         holder.unlockCanvasAndPost(canvas);
     }
@@ -159,36 +144,40 @@ public class GameField extends SurfaceView implements SurfaceHolder.Callback, Vi
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
-        if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-          //  Log.d("check",currentDevice + " current device");
-            if (currentDevice == NODE_DEVICE) {
-                if (resource != -1) {
+        if (currentDevice != null) {
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                //  Log.d("check",currentDevice + " current currentDevice");
+                if (currentDevice instanceof NodeDevice) {
                     float x = motionEvent.getX();
                     float y = motionEvent.getY();
-                    paint(name, resource, x, y);
-                    resource = -1;
+                  //  Log.d("check","call paint node");
+                    NodeDevice newDevice = (NodeDevice) currentDevice;
+                    newDevice.setX(x);
+                    newDevice.setY(y);
+                    paint(newDevice);
+                 //   Log.d("check","finish paint node");
+                //    currentDevice = null;
+                } else if (currentDevice instanceof ConnectionDevice) {
+                    curStartX = motionEvent.getX();
+                    curStartY = motionEvent.getY();
                 }
-                currentDevice = NO_DEVICE;
-            } else if (currentDevice == CONNECTION_DEVICE) {
-                curStartX = motionEvent.getX();
-                curStartY = motionEvent.getY();
-             //   Log.d("check",curStartX + " start point");
             }
-        }
-     //   Log.d("check","check");
-        if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-           // Log.d("check","check2");
-            if (curStartX != -1) {
-                paint(curStartX, curStartY, motionEvent.getX(), motionEvent.getY());
-                curStartX = -1;
-
+            if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                if (curStartX != -1) {
+                    paint(curStartX, curStartY, motionEvent.getX(), motionEvent.getY());
+                    curStartX = -1;
+                }
+             //   currentDevice = null;
             }
-            currentDevice = NO_DEVICE;
         }
         return true;
     }
 
-    public boolean isCorrect(){
+    public LevelController getLevelController() {
+        return levelController;
+    }
+
+    public boolean isCorrect() {
         List<ConnectionDevice> correctDevices = levelController.getCorrectDescription();
         List<ConnectionDevice> checkableDevices = levelController.getConnectionDeviceOnField();
         boolean flag = false;

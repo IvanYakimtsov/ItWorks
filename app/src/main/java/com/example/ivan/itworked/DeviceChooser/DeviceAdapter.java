@@ -19,12 +19,11 @@ import java.util.List;
 
 public class DeviceAdapter extends RecyclerView.Adapter<DeviceHolder> {
 
-    private Context mContext;
-    //private List<Container> mDevices = new ArrayList<>();
+    private Context context;
     List<Device> devices = new ArrayList<>();
 
     public DeviceAdapter(Context context) {
-        mContext = context;
+        this.context = context;
     }
 
     void addDevices(List<Device> devices) {
@@ -33,15 +32,16 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceHolder> {
 
     @Override
     public DeviceHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.device_item, parent, false);
-        return new DeviceHolder(mContext, view);
+        View view = LayoutInflater.from(context).inflate(R.layout.device_item, parent, false);
+        return new DeviceHolder(context, view);
     }
 
     @Override
     public void onBindViewHolder(DeviceHolder holder, int position) {
         Device device = devices.get(position);
-        if(device instanceof NodeDevice) holder.bind(device.getName(), device.getResourcePicture(), true);
-        else holder.bind(device.getName(), device.getResourcePicture(), false);
+        holder.bind(device);
+//        if(device instanceof NodeDevice) holder.bind(device.getName(), device.getResourcePicture(), true);
+//        else holder.bind(device.getName(), device.getResourcePicture(), false);
     }
 
     @Override

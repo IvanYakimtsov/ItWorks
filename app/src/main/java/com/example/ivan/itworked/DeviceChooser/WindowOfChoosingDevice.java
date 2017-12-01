@@ -5,7 +5,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
+import com.example.ivan.itworked.Devices.Device;
+import com.example.ivan.itworked.Devices.NodeDevice;
 import com.example.ivan.itworked.GameData.Level;
 import com.example.ivan.itworked.GameData.LevelController;
 import com.example.ivan.itworked.R;
@@ -22,20 +25,17 @@ public class WindowOfChoosingDevice extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
 
         Intent intent = getIntent();
-        int levelNumber = intent.getIntExtra("level", 0);
-      //  Log.d("check",levelNumber+" level");
-        //TODO:pass class instead of parametrs
+        LevelController levelController = (LevelController) intent.getSerializableExtra("LevelController");
 
-        LevelController levelController = new LevelController(getApplicationContext(),
-                new Level(levelNumber));
 
         DeviceAdapter adapter = new DeviceAdapter(this);
-     //   Log.d("check",levelController.getUseDevices().size()+"");
         adapter.addDevices(levelController.getUseDevices());
         recyclerView.setAdapter(adapter);
     }
 
-    public void addDevice(Intent intent){
+    public void addDevice(Device device){
+        Intent intent = new Intent();
+        intent.putExtra("Device",device);
         setResult(RESULT_OK, intent);
         finish();
     }

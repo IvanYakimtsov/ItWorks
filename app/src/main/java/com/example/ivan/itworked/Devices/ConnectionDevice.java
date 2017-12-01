@@ -8,17 +8,17 @@ public class ConnectionDevice implements Device {
 
     private NodeDevice firstDevice;
     private NodeDevice secondDevice;
-    private int mResourcePicture;
+    private int resourcePicture;
     private String name;
 
     public ConnectionDevice(String name, int resourcePicture) {
-        mResourcePicture = resourcePicture;
+        this.resourcePicture = resourcePicture;
         this.name = name;
     }
 
     @Override
     public int getResourcePicture() {
-        return mResourcePicture;
+        return resourcePicture;
     }
 
     @Override
@@ -50,4 +50,5 @@ public class ConnectionDevice implements Device {
                 && secondDevice.getName().equals(((ConnectionDevice) obj).firstDevice.getName());
         return firstFlag | secondFlag;
     }
+
 }

@@ -5,15 +5,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 
 import com.example.ivan.itworked.DeviceChooser.WindowOfChoosingDevice;
+import com.example.ivan.itworked.Devices.Device;
+import com.example.ivan.itworked.Devices.NodeDevice;
 import com.example.ivan.itworked.GameData.Level;
+import com.example.ivan.itworked.GameData.LevelController;
 
 public class GameActivity extends AppCompatActivity {
     GameField gameField;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,16 +45,17 @@ public class GameActivity extends AppCompatActivity {
         findViewById(R.id.pack).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, WindowOfChoosingDevice.class);
-                intent.putExtra("level",level.getLevel());
-                context.startActivityForResult(intent,0);
+                Intent intent = new Intent();
+                intent.putExtra("LevelController", gameField.getLevelController());
+                intent.setClass(context, WindowOfChoosingDevice.class);
+                context.startActivityForResult(intent, 0);
             }
         });
 
         findViewById(R.id.check).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(gameField.isCorrect()){
+                if (gameField.isCorrect()) {
                     finish();
                 }
             }
@@ -89,14 +95,10 @@ public class GameActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-       // super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == RESULT_OK){
-            int resource = data.getIntExtra("device",0);
-            int isNode = (data.getBooleanExtra("isNode",true)) ? 1 : -1;
-            String name = data.getStringExtra("name");
-            gameField.setResource(resource);
-            gameField.setName(name);
-            gameField.setCurrentDeviceNode(isNode);
+        if (resultCode == RESULT_OK) {
+            Device device = (Device) data.getSerializableExtra("Device");
+            if(device instanceof NodeDevice) ((NodeDevice) device).setContext(this);
+            gameField.setCurrentDevice(device);
 
         }
     }
